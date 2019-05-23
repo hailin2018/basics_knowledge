@@ -1,0 +1,477 @@
+一、简介
+
+1.什么是SQL？
+
+    SQL是结构化查询语言(Structured Query Language)的缩写，用来访问和操作数据库系统。SQL语句既可以查询数据库中的数据，也可以添加、更新和删除数据库中的数据，还可以对数据库进行管理和维护操作。
+    不同的数据库，都支持SQL，这样，我们通过学习SQL这一种语言，就可以操作各种不同的数据库。
+
+    简单地说，SQL就是访问和处理关系数据库（mysql）的计算机标准语言。
+
+
+2.SQL语言对数据库的常见操作：
+
+DDL：Data Definition Language（定义）  		#1 对表进行操作
+
+DDL允许用户定义数据，也就是创建表、删除表、修改表结构这些操作。通常，DDL由数据库管理员执行。
+
+DML：Data Manipulation Language（增删改）		#2 对表中的数据进行操作
+
+DML为用户提供添加、删除、更新数据的能力，这些是应用程序对数据库的日常操作。
+
+DQL：Data Query Language（查）			#3 对表中的数据进行查询
+
+DQL允许用户查询数据，这也是通常最频繁的数据库日常操作。
+
+
+3.发展由来：
+  
+    如果没有数据库，每个程序都各自写自己的读写数据程序，管理数据就会出现问题：
+  （1）查询指定数据不方便
+  （2）修改指定数据不方便
+    所以，数据库作为一种专门管理数据的软件就出现了。应用程序不需要自己管理数据，而是通过数据库软件提供的接口来读写数据。至于数据本身如何存储到文件，那是数据库软件的事情，应用程序自己并不关心：
+
+
+4.数据库的分类：关系型
+  （1）关系型：eg：mysql
+  （2）非关系型：eg：mongodb、redis
+
+
+5.主流的关系型数据库：
+  （1）商用：例如：Oracle，SQL Server，DB2等
+  （2）开源：例如：MySQL，PostgreSQL等；
+  （3）桌面：以微软Access为代表，适合桌面应用程序使用；
+  （4）嵌入式：以Sqlite为代表，适合手机应用和桌面程序。
+
+
+6.MySQL简介：
+
+    MySQL是目前应用最广泛的开源关系数据库。和其他关系数据库有所不同的是，MySQL本身实际上只是一个SQL接口，它的内部还包含了多种数据引擎，常用的包括：
+    （1）InnoDB：由Innobase Oy公司开发的一款支持事务的数据库引擎，2006年被Oracle收购  
+    （2）MyISAM：MySQL早期集成的默认数据库引擎，不支持事务。
+
+    MySQL接口和数据库引擎的关系就好比某某浏览器和浏览器引擎（IE引擎或Webkit引擎）的关系。对用户而言，切换浏览器引擎不影响浏览器界面，切换MySQL引擎不影响自己写的应用程序使用MySQL的接口。
+    
+
+7.MySQL的衍生版本：
+（1）MariaDB：MySQL的创始人创建的一个开源分支版本，使用XtraDB引擎
+（2）Aurora：Amazon改进的一个MySQL版本，专门提供给在AWS托管MySQL用户
+（3）PolarDB：Alibaba改进的一个MySQL版本，专门提供给在阿里云托管的MySQL用户
+
+8.MySQL官方版本又分了好几个版本：
+（4）Community Edition：社区开源版本，免费；
+（5）Standard Edition：标准版；
+（6）Enterprise Edition：企业版；
+（7）Cluster Carrier Grade Edition：集群版。
+
+    以上版本的功能依次递增，价格也依次递增。不过，功能增加的主要是监控、集群等管理功能，对于基本的SQL功能是完全一样的。
+    所以使用MySQL就带来了一个巨大的好处：可以在自己的电脑上安装免费的Community Edition版本，进行学习、开发、测试，部署的时候，可以选择付费的高级版本，或者云服务商提供的兼容版本，而不需要对应用程序本身做改动。
+
+
+9.安装MySQL：见收藏
+
+
+
+
+二、关系模型
+
+1.简介：
+关系数据库（MySQL）是建立在关系模型上的。而关系模型本质上就是若干个存储数据的二维表，可以把它们看作很多Excel表。
+
+表的每一行称为记录（Record），记录是一个逻辑意义上的数据。
+表的每一列称为字段（Column），同一个表的每一行记录都拥有相同的若干字段。
+
+字段（Column）定义了数据类型（整型、浮点型、字符串、日期等），以及是否允许为NULL。注意NULL表示字段数据不存在。
+
+在关系数据库中，关系是通过主键和外键来维护的。我们在后面会分别深入讲解。
+
+
+
+2.主键：能唯一区分出不同记录（Record）的字段（Column）即为主键，关系表中记录的唯一标识
+
+在关系数据库中，每一条记录（Record）都包含若干定义好的字段（Column）。如何选取主键？
+
+对主键的要求：		记录一旦插入到表中，主键最好不要再修改
+
+选取主键的基本原则：	不使用任何业务相关的字段作为主键
+
+常见的可作为id字段/主键的类型有：
+    （1）自增整数类型：数据库会在插入数据时自动为每一条记录分配一个自增整数
+    （2）全局唯一GUID类型：使用一种全局唯一的字符串作为主键
+
+
+3.联合主键：多个字段唯一标识记录
+
+
+4.外键：在students表中，通过class_id的字段，可以把数据表与另一张表关联起来，则class_id称为外键
+
+外键并不是通过列名实现的，而是通过定义外键约束实现的：
+ALTER TABLE students		#数据表的名称
+ADD CONSTRAINT fk_class_id	#外键约束的名称
+FOREIGN KEY (class_id)		#指定外键
+REFERENCES classes (id);		#外键关联的数据表名称以及id
+
+删除外键约束：
+ALTER TABLE students		#数据表的名称
+DROP FOREIGN KEY fk_class_id;	#外键约束的名称
+
+NOTE：
+    （1）由于外键约束会降低数据库的性能，大部分互联网应用程序为了追求速度，并不设置外键约束，而是仅靠应用程序自身来保证逻辑的正确性。
+    （2）删除外键约束并没有删除外键这一列。删除列是通过DROP COLUMN ...实现的
+    （3）关系数据库通过外键可以实现一对多、多对多和一对一的关系
+
+
+
+5.索引：索引是关系数据库中对某一列或多个列的值进行预排序的数据结构。
+
+索引的好处：提高查询速度，通过使用索引，可以让数据库系统不必扫描整个表，而是直接定位到符合条件的记录。
+
+ALTER TABLE students			#			
+ADD INDEX idx_score (score)		#创建了一个名称为idx_score，使用列score的索引
+ADD INDEX idx_name_score (name, score)	#创建多个索引，可以提高查找的效率
+
+索引的效率取决于索引列的值是否散列，即该列的值如果越互不相同，那么索引效率越高。
+
+索引的优缺点：
+	优点：提高了查询效率
+	缺点：在插入、更新和删除记录时，需要同时修改索引
+
+对于主键，关系数据库会自动对其创建主键索引。使用主键索引的效率是最高的，因为主键会保证绝对唯一。
+
+创建唯一索引：
+ALTER TABLE students
+ADD UNIQUE INDEX uni_name (name)
+
+
+
+三、查询数据
+
+1.基本查询：
+SELECT * FROM <表名>			#查询<表名>表的所有数据
+
+
+2.按条件查询：
+SELECT * FROM <表名> WHERE <条件表达式>		#查询指定条件的所有数据
+条件表达式可以用 <条件1> AND /OR/NOT <条件2>表示多个条件
+eg：SELECT * FROM students WHERE score >= 80 AND gender = 'M';
+
+
+3.投影查询：
+SELECT 列1, 列2, 列3 FROM <表名> WHERE <条件表达式>	#查询指定列的数据
+
+SELECT 列1 别名1, 列2 别名2, 列3 别名3 FROM <表名>		#查询指定列的数据，并修改列名
+
+
+4.排序查询：
+SELECT * FROM <表名> ORDER BY score		#查询所有数据，并按score排序，从小到大
+SELECT * FROM <表名> ORDER BY score DESC	#查询所有数据，并按score排序，从大到小
+SELECT * FROM <表名> ORDER BY score DESC，gender	
+#查询所有数据，顺序先按score倒序，有score相同的数据，再按gender正序
+
+
+4.1.小结：
+查询所有数据：	SELECT * FROM <表名>
+查询指定列的数据：SELECT 列1, 列2, 列3 FROM <表名>
+查询指定列+指定聚合函数的数据：select 列1 别称,聚合函数 别名 from 表名;
+
+带条件：		WHERE <条件表达式>
+
+指定顺序：	ORDER BY <列名> DESC/ASC	默认ASC（升序）
+
+NOTE：如果有WHERE子句，那么ORDER BY子句要放到WHERE子句后面
+
+
+6.分页查询：
+LIMIT <M> OFFSET <N> 		#结果集从N号记录开始，最多取M条
+
+eg：
+SELECT id, name, gender, score	#查询指定列数据
+FROM students			#从表students查询
+WHERE score > 60		#指定条件
+ORDER BY score DESC		#指定顺序
+LIMIT 3 OFFSET 3;		#在结果集中，从索引为3的开始取，最多取3条
+
+
+7.聚合查询：对于统计总数、平均数这类计算，SQL提供了专门的聚合函数，使用聚合函数进行查询
+
+SELECT COUNT(*) FROM students		#COUNT(*)计算 所查询的所有数据的行数
+SELECT COUNT(*) num FROM students;	#给查询结果设置一个别名
+
+NOTE：1.聚合的计算结果虽然是一个数字，但查询的结果仍然是一个二维表，只是这个二维表只有一行一列，并且列名是COUNT(*)
+	2.
+
+7.1 SQL提供的聚合函数：
+SUM	计算某一列的合计值，该列必须为数值类型
+AVG	计算某一列的平均值，该列必须为数值类型
+MAX	计算某一列的最大值
+MIN	计算某一列的最小值
+
+eg：
+SELECT AVG(score) average	#计算查询数据中，score列的平均值，并给其别名
+FROM students 			#
+WHERE gender = 'M';		#查询指定条件的数据
+
+
+7.2 分组聚合：GROUP BY
+SELECT COUNT(*) num 		#COUNT(*)计算 所查询的所有数据的行数
+FROM students 			#
+GROUP BY class_id		#指定class_id分组，把class_id相同的列先分组，再分别计算
+
+
+SELECT class_id, COUNT(*) num 	#同上，且显示对应的class_id列，NOTE：只能放入分组的列
+FROM students 
+GROUP BY class_id		#同上
+
+
+SELECT class_id, gender, COUNT(*) num 	#可以使用多个列进行分组
+FROM students 
+GROUP BY class_id, gender		#指定两个列分组，把两个列相同的数据先分组，再分别计算
+
+
+7.3 练习题：
+#查询所有数据
+SELECT * FROM students 
+
+#查询指定列的数据
+SELECT name, score FROM students 
+
+#查询带条件的所有数据
+SELECT * FROM students WHERE score>80
+
+#查询带条件的 + 指定倒序 的所有数据
+SELECT * FROM students WHERE score>80 ORDER BY score DESC
+
+
+
+#聚合查询多了聚合函数，剩下的和上面都一样。用聚合函数计算指定数据
+SELECT COUNT(*) FROM students
+
+#分组聚合：GROUP BY id-name 
+
+#查询查出每个班级的平均分
+SELECT class_id,AVG(score) FROM students GROUP BY class_id
+
+
+#查询每个班级男生和女生的平均分
+SELECT class_id, gender,AVG(score) FROM students GROUP BY class_id, gender 
+
+
+
+8.多表查询：
+SELECT * FROM students, classes			
+#一次查询两个表，结果也是二维表，结果集的列数是students表和classes表的列数之和，行数是students表和classes表的行数之积。
+
+
+SELECT
+    students.id sid,		#查询指定列的数据，并修改列名
+    students.name,		#NOTE：指定列的格式为：表名.列名
+    students.gender,
+    students.score,
+    classes.id cid,
+    classes.name cname
+FROM students, classes;
+
+
+SELECT
+    s.id sid,		#查询指定列的数据，并修改列名
+    s.name,		#NOTE：指定列的格式为：表名简写.列名
+    s.gender,
+    s.score,
+    c.id cid,
+    c.name cname
+FROM students s, classes c;	#给表名设置别名
+
+
+
+9.连接查询：将另一个表的某一列添加到主表中去
+
+SELECT s.id, s.name, s.class_id, c.name class_name, s.gender, s.score	#查询指定列的数据
+FROM students s				#FROM <表1>确定主表，且给表设置别名
+INNER JOIN classes c			#INNER JOIN<表2>确定副表，并设置别名		
+ON s.class_id = c.id			#ON <条件...>  表示students表的class_id列与classes表的							id列相同的行需要连接
+
+INNER JOIN classes c			#主表和副表求交集	
+
+RIGHT OUTER JOIN classes c		#主表的所有
+LEFT OUTER JOIN classes c		#副表的所有
+FULL OUTER JOIN classes c		#主表和副表求并集
+
+
+9.1 小结：
+
+    （1）JOIN查询需要先确定主表，然后把另一个表的数据“附加”到结果集上
+
+    （2）INNER JOIN是最常用的一种JOIN查询，它的语法是SELECT ... FROM <表1> INNER JOIN <表2> ON <条件...>
+
+    （3）JOIN查询仍然可以使用WHERE条件和ORDER BY排序
+
+
+
+
+
+
+NOTE：表的每一行称为记录（Record），表的每一列称为字段（Column）
+
+四、修改数据：对表中的数据进行操作
+
+1.简介：
+关系数据库的基本操作就是增删改查，即CRUD：Create、Retrieve、Update、Delete。其中，对于查询，我们已经详细讲述了SELECT语句的详细用法。
+
+而对于增、删、改，对应的SQL语句分别是：
+
+INSERT：插入新记录；
+UPDATE：更新已有记录；
+DELETE：删除已有记录。 
+
+
+
+2. INSERT（增）：加入新的记录/行
+
+INSERT INTO <表名> (字段1, 字段2, ...) VALUES (值1, 值2, ...)		#插入一条新纪录
+
+eg：
+INSERT INTO students (class_id, name, gender, score) VALUES (2, '大牛', 'M', 80)
+
+NOTE：  （1）自增字段和默认字段不用添加
+	（2）值的顺序和字段的顺序必须要一致
+
+
+INSERT INTO students (class_id, name, gender, score) 
+VALUES (1, '大宝', 'M', 87),(2, '二宝', 'M', 81);			#一次添加多条记录
+
+
+
+3. UPDATE（改）：更新已有的记录数据，即修改
+
+UPDATE <表名> SET 字段1=值1, 字段2=值2, ... WHERE ...			#修改已有的记录
+
+eg：
+UPDATE students SET name='大牛', score=66 WHERE id=1;		#WHERE指定行
+
+UPDATE students SET name='小牛', score=77 WHERE id>=5 AND id<=7;	#一次修改多条记录
+
+UPDATE students SET score=score+10 WHERE score<80;		#更新字段可以使用表达式
+
+NOTE：
+	（1）UPDATE语句没有匹配到任何记录时，不会报错，也不会修改任何记录
+	（2）UPDATE语句可以没有WHERE条件，此时是修改整个表
+
+
+4.DELETE（删）：删除已有记录
+
+DELETE FROM <表名> WHERE ...;				#删除已有记录，where指定行
+
+DELETE FROM students WHERE id>=5 AND id<=7;		#一次删除多行记录
+
+NOTE：
+	（1）DELETE语句没有匹配到任何记录时，不会报错，也不会删除任何记录
+	（2）DELETE语句可以没有WHERE条件，此时是删除整个表
+
+
+
+
+
+五、MySQL
+
+1.简介：
+
+安装完MySQL后，除了MySQL Server，即真正的MySQL服务器外，还附赠一个MySQL Client程序
+MySQL Client是一个命令行客户端，可以通过MySQL Client登录MySQL，然后，输入SQL语句并执行。
+
+mysql -u root -p			#进入mysql的命令行程序/客户端
+exit				#断开与MySQL Server的连接并返回到命令行
+
+
+
+2.管理MySQL/常用的SQL语句：对表进行操作
+
+SHOW DATABASES;			#显示所有的数据库
+
+CREATE DATABASE test;		#创建一个数据库
+
+DROP DATABASE test;		#删除一个数据库
+
+USE test;			#切换当test数据库，才能对其操作
+
+SHOW TABLES;			#显示当前数据库的所有表
+
+DESC students;			#查看当前数据库中某一个表的结构
+
+CREATE TABLE students (		
+`id` bigint(20) NOT NULL AUTO_INCREMENT,
+`class_id` bigint(20) NOT NULL, 
+`name` varchar(100) NOT NULL, 
+`gender` varchar(1) NOT NULL, 
+`score` int(11) NOT NULL,
+PRIMARY KEY (`id`)
+) ;				#在当前数据库创建一个表
+
+
+DROP TABLE students;		#在当前数据库删除一个表
+
+SHOW CREATE TABLE students;	#查看创建students表的SQL语句
+
+ALTER TABLE students ADD COLUMN birth VARCHAR(10) NOT NULL;	#给表增加一个列：birth
+
+ALTER TABLE students CHANGE COLUMN birth birthday VARCHAR(20) NOT NULL;	#
+
+
+ALTER TABLE students CHANGE COLUMN birth birthday VARCHAR(20) NOT NULL;
+#修改列名和列的类型
+
+ALTER TABLE students DROP COLUMN birthday;		#删除表的某一列
+
+exit				#退出MySQL
+
+
+
+3. 实用SQL语句：
+
+#插入或替换：if id=1的数据不存在，则插入新记录，有则替换
+REPLACE INTO students (id, class_id, name, gender, score) VALUES (1, 1, '小明', 'F', 99);
+
+
+#插入或更新：if id=1的数据不存在，则插入新记录，有，则用后面的数据更新
+INSERT INTO students (id, class_id, name, gender, score) VALUES (1, 1, '小明', 'F', 99) 
+ON DUPLICATE KEY UPDATE name='小明', gender='F', score=99;
+
+
+#插入或忽略：if id=1的数据不存在，则插入新数据，有，则忽略，什么也不做
+INSERT IGNORE INTO students (id, class_id, name, gender, score) VALUES (1, 1, '小明', 'F', 99);
+
+
+#快照：对class_id=1的记录进行快照，并存储为新表students_of_class1
+CREATE TABLE students_of_class1 SELECT * FROM students WHERE class_id=1;
+
+
+#写入查询结果集：将查询的结果写入另一个表
+
+CREATE TABLE statistics (				#先创建一个表
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    class_id BIGINT NOT NULL,
+    average DOUBLE NOT NULL,
+    PRIMARY KEY (id)
+);
+						#再将查询结果写入这个表
+INSERT INTO statistics (class_id, average) SELECT class_id, AVG(score) FROM students GROUP BY class_id;
+
+
+
+
+
+
+
+六、事务
+
+
+
+
+
+
+
+
+
+
+
+
+
+

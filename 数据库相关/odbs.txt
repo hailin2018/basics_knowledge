@@ -1,0 +1,146 @@
+一、简介：
+
+1.odbs是什么？
+
+ODPS（Open Data Processing Service），是阿里巴巴通用计算平台提供的一种快速、完全托管的 GB/TB/PB 级数据仓库解决方案，即数据仓库，现在已更名为MaxCompute
+
+
+2.数据库 & 数据仓库 的区别：
+
+见收藏
+
+
+
+
+二、查询/Select语句：
+
+1.语法格式：
+
+SELECT [ALL | DISTINCT] select_expr, select_expr, ...			#查询指定字段的数据（所有/去重）
+FROM table_reference							#from 表名
+[WHERE where_condition]						#where 指定条件
+[GROUP BY col_list]							#分组
+[ORDER BY order_condition]						#排序
+[DISTRIBUTE BY distribute_condition [SORT BY sort_condition] ]		#？
+[LIMIT number]								#指定数量
+
+
+2.列表达式：
+select * from sale_detail;		
+select shop_name from sale_detail;
+select * from sale_detail where shop_name like 'hang%';			#like
+
+
+3.Distinct去重：
+如果有重复数据行时，在字段前使用distinct，会将重复字段去重，只返回一个值，而使用all将返回字段中所有重复的值，不指定此选项时默认效果和all相同。
+
+select distinct region from sale_detail;					#
+select distinct region, sale_date from sale_detail;
+-- distinct多列，distinct的作用域是 Select 的列集合，不是单个列。
+
+
+4.Where子句过滤：
+	(1)> 、 < 、 =、 >=、 <=、 <>：关系操作符
+	(2)like、rlike：like和rlike的source和pattern参数均仅接受str类型
+	(3)in、not in：如果在in/not in条件后加子查询，子查询只能返回一列值，且返回值的数量不能超过1000
+
+
+5.分区表：
+Select分区表时禁止全表扫描，在Select语句的where子句中，您可以指定分区范围，这样可以仅仅扫描表的指定部分，避免全表扫描
+
+SELECT sale_detail.* FROM sale_detail 
+WHERE sale_detail.sale_date >= '2008'AND sale_detail.sale_date <= '2014';		#指定分区：sale_detail.sale_date
+
+SELECT sale_detail.* FROM sale_detail 
+WHERE sale_detail.sale_date BETWEEN '2008' AND '2014';				#支持between…and条件查询
+
+
+
+6.Group by分组查询：一般group by和聚合函数配合使用
+
+select sum(total_price) from sale_detail group by region;
+-- 以region值分组，返回每一组的销售额总量，可以运行
+
+select region, sum(total_price) from sale_detail group by region;
+-- 以region值分组，返回每一组的region值(组内唯一)及销售额总量，可以运行
+
+select region, total_price from sale_detail group by region;
+-- 报错返回，select的所有列中，没有使用聚合函数的列，必须出现在group by中
+
+
+7.Order by：
+
+对所有数据按照某几列进行全局排序。如果您希望按照降序对记录进行排序，可以使用DESC关键字。由于是全局排序，order by必须与limit共同使用。
+与group by不同，order by后面必须加Select列的别名，当Select某列时，如果没有指定列的别名，将列名作为列的别名。
+
+select * from sale_detail order by region;
+-- 报错返回，order by没有与limit共同使用
+select * from sale_detail order by region limit 100;
+select region as r from sale_detail order by region limit 100;
+-- 报错返回，order by后面必须加列的别名
+select region as r from sale_detail order by r limit 100;
+
+
+8.Limit number 限制输出行数
+
+[Limit number]的number是常数，限制输出行数。当使用无limit的Select语句直接从屏幕输出查看结果时，最多只输出10000行。
+
+
+9.Order by/Sort by/Distribute by：
+    （1）Distribute by：对数据按照某几列的值做Hash分片，必须使用Select的输出列别名。
+	select region from sale_detail distribute by region;
+	-- 列名即是别名，可以运行
+	select region as r from sale_detail distribute by region;
+	-- 报错返回，后面必须加列的别名。
+	select region as r from sale_detail distribute by r;
+    （2）Sort by：局部排序，语句前必须加distribute by。实际上sort by是对distribute by的结果进行局部排序。必须使用Select的输出列别名。
+	select region from sale_detail distribute by region sort by region;
+	select region as r from sale_detail sort by region;
+	-- 没有distribute by，报错退出。
+    （3）Order by不和distribute by/sort by共用，同时group by也不和distribute by/sort by共用，必须使用Select的输出列别名。
+	
+
+
+
+
+三、Select语序
+
+按照Select语法格式书写的Select语句，实际上的逻辑执行顺序与标准的书写语序实际并不相同。eg：
+
+SELECT  key
+        ,MAX(value)
+FROM    src t
+WHERE   value > 0
+GROUP BY key
+HAVING  SUM(value) > 100
+ORDER BY key
+LIMIT   100;
+
+实际上的逻辑执行顺序是FROM->WHERE->GROUY BY->HAVING->SELECT->ORDER BY->LIMIT
+
+（1）order by中只能引用Select列表中生成的列，而不是访问From的源表中的列。
+（2）Having可以访问的是group by key和聚合函数。
+（3）Select的时候，如果有group by，便只能访问group key和聚合函数，而不是From中源表中的列。
+
+
+
+三、子查询：查询的对象是另外一个Select操作
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
